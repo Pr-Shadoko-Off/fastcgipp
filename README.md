@@ -107,6 +107,10 @@ Or if you want some really hardcore debug and diagnostics info
 
     cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -D LOG_LEVEL:INT=4 ../fastcgi++
 
+If you want the optional targets listed below (documentation, examples and test)
+
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DBUILD_EXAMPLES=true -DBUILD_TESTS=true ../fastcgi++
+
 Now let's build the library itself.
 
     make

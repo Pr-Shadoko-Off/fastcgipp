@@ -188,46 +188,55 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fastcgi++)
 
 # All the test stuff
-enable_testing()
-foreach(UNITTEST IN LISTS TESTS)
-    add_executable(${UNITTEST}_test EXCLUDE_FROM_ALL tests/${UNITTEST}.cpp)
-    target_link_libraries(${UNITTEST}_test PRIVATE Fastcgipp::fastcgipp)
-    add_test("${UNITTEST}" ${UNITTEST}_test)
-    list(APPEND TEST_TARGET ${UNITTEST}_test)
-endforeach()
-if(SQL)
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/sql.sh.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/sql_test.sh" @ONLY)
-    add_executable(sql_test EXCLUDE_FROM_ALL tests/sql.cpp)
-    target_link_libraries(sql_test PRIVATE Fastcgipp::fastcgipp)
-    add_test("sql" sql_test.sh)
-    list(APPEND TEST_TARGET sql_test)
-    target_include_directories(sql_test PRIVATE ${PostgreSQL_INCLUDE_DIRS})
-endif(SQL)
-add_custom_target(tests DEPENDS ${TEST_TARGET})
+option(BUILD_TESTS "Set to ON to build and run the tests" OFF)
+if(BUILD_TESTS)
+    enable_testing()
+    foreach(UNITTEST IN LISTS TESTS)
+        add_executable(${UNITTEST}_test EXCLUDE_FROM_ALL tests/${UNITTEST}.cpp)
+        target_link_libraries(${UNITTEST}_test PRIVATE Fastcgipp::fastcgipp)
+        add_test("${UNITTEST}" ${UNITTEST}_test)
+        list(APPEND TEST_TARGET ${UNITTEST}_test)
+    endforeach()
+    if(SQL)
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/sql.sh.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/sql_test.sh" @ONLY)
+        add_executable(sql_test EXCLUDE_FROM_ALL tests/sql.cpp)
+        target_link_libraries(sql_test PRIVATE Fastcgipp::fastcgipp)
+        add_test("sql" sql_test.sh)
+        list(APPEND TEST_TARGET sql_test)
+        target_include_directories(sql_test PRIVATE ${PostgreSQL_INCLUDE_DIRS})
+    endif(SQL)
+    add_custom_target(tests DEPENDS ${TEST_TARGET})
+endif(BUILD_TESTS)
 
 # Examples
-foreach(EXAMPLE IN LISTS EXAMPLES)
-    add_executable(${EXAMPLE}.fcgi EXCLUDE_FROM_ALL examples/${EXAMPLE}.cpp)
-    target_link_libraries(${EXAMPLE}.fcgi PRIVATE Fastcgipp::fastcgipp)
-    list(APPEND EXAMPLE_TARGETS ${EXAMPLE}.fcgi)
-endforeach()
-add_custom_target(examples DEPENDS ${EXAMPLE_TARGETS})
+option(BUILD_EXAMPLES "Set to ON to build the examples" OFF)
+if(BUILD_EXAMPLES)
+    foreach(EXAMPLE IN LISTS EXAMPLES)
+        add_executable(${EXAMPLE}.fcgi EXCLUDE_FROM_ALL examples/${EXAMPLE}.cpp)
+        target_link_libraries(${EXAMPLE}.fcgi PRIVATE Fastcgipp::fastcgipp)
+        list(APPEND EXAMPLE_TARGETS ${EXAMPLE}.fcgi)
+    endforeach()
+    add_custom_target(examples DEPENDS ${EXAMPLE_TARGETS})
+endif(BUILD_EXAMPLES)
 
 # And finally the documentation
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY)
-    add_custom_target(
-        doc
-        "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMENT "Generating API documentation with Doxygen" VERBATIM)
-    install(
-        DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doc/"
-        DESTINATION ${CMAKE_INSTALL_DOCDIR}
-        OPTIONAL)
-endif(DOXYGEN_FOUND)
+option(BUILD_DOCUMENTATION "Set to ON to generate the documentation" OFF)
+if(BUILD_DOCUMENTATION)
+    find_package(Doxygen)
+    if(DOXYGEN_FOUND)
+        configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile" @ONLY)
+        add_custom_target(
+            doc
+            "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+            COMMENT "Generating API documentation with Doxygen" VERBATIM)
+        install(
+            DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doc/"
+            DESTINATION ${CMAKE_INSTALL_DOCDIR}
+            OPTIONAL)
+    endif(DOXYGEN_FOUND)
+endif(BUILD_DOCUMENTATION)
