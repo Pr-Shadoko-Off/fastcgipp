@@ -238,6 +238,8 @@ namespace Fastcgipp
         WebStreambuf():
             m_encoding(Encoding::NONE)
         {}
+
+        ~WebStreambuf() = default;
     };
 }
 

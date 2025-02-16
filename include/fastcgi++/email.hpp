@@ -49,6 +49,8 @@ namespace Fastcgipp
         class Email_base
         {
         public:
+            virtual ~Email_base() = default;
+
             //! %Email message data
             struct DataRef
             {
